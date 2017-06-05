@@ -26,7 +26,7 @@ bit flag_4;
 bit ledOut_b;
 bit freqOut_b;
 bit start_enable;
-logic [1:0] counter_b;
+logic [1:0] count_b;
 logic clk_1_Hz;
 
 FrequencyGenerator
@@ -84,14 +84,20 @@ Counter_4
 /*Asignacion de estado, proceso secuencial*/
 always_ff@(posedge clk, negedge reset) begin
 	if(reset == 1'b0)
+		begin
 			state <= INITIAL;
+			count_b <= 1'b0;
+		end
 	else 
 		case(state)
 			INITIAL:
 				if(start == 1'b1)
 					state <= LED_ON;
 				else
-					state <= INITIAL;					
+				begin
+					count_b <= 1'b0;
+					state <= INITIAL;		
+				end
 			LED_ON:
 				if (flag_6 == 1'b1)
 					state <= LED_OFF;
@@ -100,7 +106,8 @@ always_ff@(posedge clk, negedge reset) begin
 			LED_OFF:
 				if(flag_4 == 1'b1)
 					begin
-						if(counter_b == 2)
+						count_b <= count_b + 1'b1;
+						if(count_b == 2)
 							state <= INITIAL;
 						else 
 							state <= LED_ON;
@@ -115,17 +122,12 @@ end//end always
 /*------------------------------------------------------------------------------------------*/
 /*Asignación de salidas,proceso combintorio*/
 always_comb begin
-	start_enable = 1'b0;
-	counter_6 = 1'b0;
-	counter_4 = 1'b0;
-	counter_b = 1'b0;
-	ledOut_b = 1'b0;
  case(state)
 		INITIAL: 
 				begin
+					start_enable = 1'b0;
 					counter_6 = 1'b0;
 					counter_4 = 1'b0;
-					counter_b = 1'b0;
 					ledOut_b = 1'b0;
 				end
 		LED_ON: 
@@ -141,13 +143,11 @@ always_comb begin
 				counter_6 = 1'b0;
 				ledOut_b = 1'b0;
 				start_enable = 1'b1;
-				counter_b = counter_b + 1'b1;
 			end
 	default: 		
 			begin
 				counter_6 = 1'b0;
 				counter_4 = 1'b0;
-				counter_b = 1'b0;
 				ledOut_b = 1'b0;
 				start_enable = 1'b0;
 			end
@@ -156,7 +156,7 @@ always_comb begin
 end
 assign freqOut = clk_1_Hz;
 assign ledOut = ledOut_b; 
-
+	
 /*--------------------------------------------------------------------*/
  /*--------------------------------------------------------------------*/
  /*--------------------------------------------------------------------*/

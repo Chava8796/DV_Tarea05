@@ -4,7 +4,7 @@ timeprecision 1ps;// It specifies the resolution in the simulation.
 module BlinkFunction_TB;
 
 	parameter BASE_CLK = 50000000;		//FPGA base clock frequency obtained internally
-	parameter TARGET_FREQUENCY = 1;	//Frequency to obtain at the output
+	parameter TARGET_FREQUENCY = 12500000;	//Frequency to obtain at the output
 	parameter MAXIMUM_VALUE = CountValue(TARGET_FREQUENCY,BASE_CLK); //Count to obtain the target frequency
 	parameter NBITS_FOR_COUNTER = CeilLog2(MAXIMUM_VALUE);			//Length for the count
 
@@ -16,6 +16,7 @@ bit enable;		//Enable signal
   // Output Ports
 logic freqOut;			//Generated frequency
 logic ledOut;			//Generated frequency
+logic [1:0] countB;
 
 BlinkFunction
 #(
@@ -34,6 +35,7 @@ DUT
 	
 	// Output Ports
 	.freqOut(freqOut),
+	.countB(countB),
 	.ledOut(ledOut) 
 );
 
@@ -51,8 +53,9 @@ end
 
 /*********************************************************/
 initial begin // enable
-	#0 enable = 1;
+	#0 enable = 0;
 	#6 enable = 1;
+	#50 enable = 0;
 end
 
 /*--------------------------------------------------------------------*/
